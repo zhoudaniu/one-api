@@ -1,0 +1,25 @@
+import React from 'react';
+import TopUpComponent from '../../components/TopUp';
+import { useTranslation } from 'react-i18next';
+
+const TopUp = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div className='modern-container' style={{ paddingTop:'20px' }}>
+      <div className='modern-card'>
+        <div className='modern-card-header'>
+          <span style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+            <i className='cart icon' style={{ color:'var(--primary)' }}></i>
+            {t('topup.title')}
+          </span>
+        </div>
+        <div className='modern-card-body'>
+          <TopUpComponent />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TopUp;
