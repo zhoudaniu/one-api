@@ -13,3 +13,6 @@ cmd.md
 /one-api
 temp
 .DS_Store
+/web/air/build
+/web/air/node_modules
+/web-air

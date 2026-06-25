@@ -10,7 +10,7 @@ const TopUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getUserQuota = async () => {
-    let res = await API.get(\/api/user/self\);
+    let res = await API.get("/api/user/self");
     const {success, message, data} = res.data;
     if (success) {
       setUserQuota(data.quota);

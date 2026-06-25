@@ -48,7 +48,7 @@ const LoginForm = () => {
 
   const onSubmitWeChatVerificationCode = async () => {
     const res = await API.get(
-      \/api/oauth/wechat?code=\\
+      "/api/oauth/wechat?code=" + inputs.wechat_verification_code
     );
     const { success, message, data } = res.data;
     if (success) {
@@ -70,7 +70,7 @@ const LoginForm = () => {
   async function handleSubmit(e) {
     setSubmitted(true);
     if (username && password) {
-      const res = await API.post(\/api/user/login\, {
+      const res = await API.post("/api/user/login", {
         username,
         password,
       });
