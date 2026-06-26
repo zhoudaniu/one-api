@@ -121,6 +121,7 @@ var ValidThemes = map[string]bool{
 	"default": true,
 	"berry":   true,
 	"air":     true,
+	"web-api": true,
 }
 
 // Midjourney 相关配置

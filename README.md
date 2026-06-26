@@ -39,16 +39,16 @@
 
 ### 🌐 支持的模型渠道
 
-| 渠道 | 支持模型 |
-|------|----------|
-| OpenAI | GPT-3.5、GPT-4、GPT-4o、o1 系列 |
-| Azure OpenAI | Azure 部署的 OpenAI 模型 |
-| Anthropic | Claude 3.5 Sonnet、Claude 3 Opus |
-| Google | Gemini Pro、Gemini Ultra |
-| DeepSeek | DeepSeek Chat、DeepSeek Coder |
-| 百度文心 | ERNIE-Bot 系列 |
-| 阿里通义 | Qwen 系列 |
-| 更多... | 智谱、讯飞、月之暗面等 |
+| 渠道         | 支持模型                         |
+| ------------ | -------------------------------- |
+| OpenAI       | GPT-3.5、GPT-4、GPT-4o、o1 系列  |
+| Azure OpenAI | Azure 部署的 OpenAI 模型         |
+| Anthropic    | Claude 3.5 Sonnet、Claude 3 Opus |
+| Google       | Gemini Pro、Gemini Ultra         |
+| DeepSeek     | DeepSeek Chat、DeepSeek Coder    |
+| 百度文心     | ERNIE-Bot 系列                   |
+| 阿里通义     | Qwen 系列                        |
+| 更多...      | 智谱、讯飞、月之暗面等           |
 
 ---
 
@@ -78,16 +78,16 @@ docker run -d \
 version: '3.8'
 
 services:
-  one-api:
-    image: justsong/one-api
-    container_name: one-api
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./data:/data
-    environment:
-      - TZ=Asia/Shanghai
-    restart: unless-stopped
+    one-api:
+        image: justsong/one-api
+        container_name: one-api
+        ports:
+            - '3000:3000'
+        volumes:
+            - ./data:/data
+        environment:
+            - TZ=Asia/Shanghai
+        restart: unless-stopped
 ```
 
 启动服务：
@@ -140,6 +140,10 @@ npm install
 npm run build
 cd ../..
 
+# 上传
+scp -r dist/air/* root@smartlinking.ai:/root/one-api/web/build/air/
+
+
 # 运行
 ./one-api --port 3000
 ```
@@ -150,12 +154,12 @@ cd ../..
 
 ### 环境变量
 
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `PORT` | 服务端口 | 3000 |
+| 变量名       | 说明              | 默认值          |
+| ------------ | ----------------- | --------------- |
+| `PORT`       | 服务端口          | 3000            |
 | `SQLITE_DSN` | SQLite 数据库路径 | data/one-api.db |
-| `LOG_DIR` | 日志目录 | logs |
-| `CDN_URL` | 前端资源 CDN 地址 | - |
+| `LOG_DIR`    | 日志目录          | logs            |
+| `CDN_URL`    | 前端资源 CDN 地址 | -               |
 
 ### 命令行参数
 
