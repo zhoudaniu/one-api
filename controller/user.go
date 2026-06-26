@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -170,9 +171,15 @@ func Register(c *gin.Context) {
 		cleanUser.Email = user.Email
 	}
 	if err := cleanUser.Insert(ctx, inviterId); err != nil {
+		message := "注册失败"
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			message = "用户名已存在，请更换用户名"
+		} else if strings.Contains(err.Error(), "constraint failed") {
+			message = "注册失败，请检查输入信息"
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": err.Error(),
+			"message": message,
 		})
 		return
 	}

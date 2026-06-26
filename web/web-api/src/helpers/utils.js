@@ -40,10 +40,27 @@ export function getFooterHTML() {
 export async function copy(text) {
   let okay = true;
   try {
+    // 优先使用现代 Clipboard API
     await navigator.clipboard.writeText(text);
   } catch (e) {
-    okay = false;
-    console.error(e);
+    // 回退到传统方法
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '-9999px';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const result = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      okay = result;
+    } catch (e2) {
+      okay = false;
+      console.error(e2);
+    }
   }
   return okay;
 }

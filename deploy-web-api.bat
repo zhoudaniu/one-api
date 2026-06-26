@@ -11,7 +11,7 @@ echo =====================================
 echo.
 
 echo [1/4] Building frontend (web-api)...
-call npm run build
+cd web\web-api && call npm run build && cd /d "%~dp0"
 if %ERRORLEVEL% NEQ 0 (
     echo [FAILED] Build error
     pause

@@ -24,10 +24,10 @@ if command -v docker &> /dev/null && docker info &> /dev/null 2>&1; then
 fi
 
 echo "[1/2] Building frontend..."
-cd web/default
+cd web/web-api
 npm install 2>/dev/null || npm install --legacy-peer-deps 2>/dev/null
 DISABLE_ESLINT_PLUGIN="true" npm run build
-rm -rf ../build/default && mv -f build ../build/default
+rm -rf ../build/web-api && mv -f build ../build/web-api
 cd "$(dirname "$0")"
 
 echo "[2/2] Compiling Go binary..."

@@ -319,9 +319,6 @@ const Home = () => {
             <div className='action-desc'>查看系统日志</div>
           </a>
         </div>
-        <div tyle={{ textAlign: 'center', margin: '10px 0' }}>
-          <p className='dashboard-subtitle'>web-api</p>
-        </div>
       </div>
     </div>
   );

@@ -1,9 +1,6 @@
 {
   "scripts": {
-    "build": "cd web/air && npm run build",
-    "build:berry": "cd web/berry && npm run build",
-    "build:default": "cd web/default && npm run build",
-    "build:all": "npm run build && npm run build:berry && npm run build:default",
+    "build": "cd web/web-api && npm run build",
     "build:linux": "build-linux.bat",
     "deploy": "npm run build && npm run build:linux"
   },

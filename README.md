@@ -238,33 +238,26 @@ one-api/
 
 ---
 
-## 🤝 贡献指南
+## 🤝 打包部署
 
-欢迎贡献代码！请遵循以下步骤：
+以后需要更新时，可以使用以下命令：
 
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
+# 1. 构建 web-api 主题
 
----
+cd web/web-api && npm run build
 
-## 📄 许可证
+# 2. 上传构建产物
 
-本项目采用 [MIT 许可证](LICENSE) 开源。
+ssh root@smartlinking.ai "rm -rf /root/one-api/web/build/web-api"
+scp -r web/build/web-api root@smartlinking.ai:/root/one-api/web/build/
 
----
+# 3. 编译后端
 
-## 🔗 相关链接
+GOOS=linux GOARCH=amd64 go build -o one-api-linux .
 
-- [GitHub 仓库](https://github.com/songquanpeng/one-api)
-- [在线演示](https://openai.justsong.cn/)
-- [问题反馈](https://github.com/songquanpeng/one-api/issues)
+# 4. 上传后端并重启
+
+scp one-api-linux root@smartlinking.ai:/root/one-api/one-api
+ssh root@smartlinking.ai "cd /root/one-api-docker && docker compose down && docker compose up -d"
 
 ---
-
-## 🙏 致谢
-
-- 主题 UI 来自 [Calon](https://github.com/calon)
-- 感谢所有贡献者
