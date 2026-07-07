@@ -12,7 +12,7 @@ RUN DISABLE_ESLINT_PLUGIN='true' REACT_APP_VERSION=$(cat ../VERSION | tr -d '\r\
 
 # 👈 将产物移动到正确的子目录，与 web.go 中的 Theme 路径对应
 # web.go 中期望 web/build/web-api/index.html，而不是 web/build/index.html
-RUN mkdir -p /web/build/web-api && mv build/* /web/build/web-api/
+RUN rm -rf /web/build/web-api && mkdir -p /web/build/web-api && mv build/* /web/build/web-api/
 
 
 FROM golang:alpine AS builder2
