@@ -25,9 +25,9 @@ jobs:
                   if [[ $REPO_URL == *"pro" ]]; then
                     exit 1
                   fi
+
             - name: Save version info
-              run: |
-                  github.sha > VERSION
+              run: echo "${{ github.sha }}" > VERSION
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
 
