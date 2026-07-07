@@ -35,6 +35,13 @@ RUN go mod download
 COPY . .
 COPY --from=builder /web/build ./web/build
 
+# 👈 在这后面添加下面这行代码来打印文件列表
+RUN echo "=== 正在检查 ./web/build 目录下的内容 ===" && ls -la ./web/build
+
+
+# 👈 在这后面添加下面这行代码来打印文件列表
+RUN echo "=== 正在检查 /web/build 目录下的内容 ===" && ls -la /web/build
+
 RUN go build -trimpath -ldflags "-s -w -X 'github.com/songquanpeng/one-api/common.Version=$(cat VERSION | tr -d '\r\n')' -linkmode external -extldflags '-static'" -o one-api
 
 
