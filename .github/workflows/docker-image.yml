@@ -25,11 +25,6 @@ jobs:
                   if [[ $REPO_URL == *"pro" ]]; then
                     exit 1
                   fi
-
-            - name: Save version info
-              run: |
-                  git describe --tags > VERSION
-
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
 
