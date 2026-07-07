@@ -18,3 +18,4 @@ temp
 /web/air/node_modules
 /web-air
 dist
+.claude/
