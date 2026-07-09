@@ -304,18 +304,30 @@ func GetUserDashboard(c *gin.Context) {
 		quotaPerUnit = 500000.0
 	}
 
+	// 获取用户统计数据
+	totalUsers, err := model.GetUserCount()
+	if err != nil {
+		totalUsers = 0
+	}
+	newUsersToday, err := model.GetTodayNewUserCount()
+	if err != nil {
+		newUsersToday = 0
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",
 		"data": gin.H{
-			"request_count":   user.RequestCount,
-			"token_count":     user.UsedQuota,
-			"used_quota":      user.UsedQuota,
-			"quota":           user.Quota,
-			"quota_per_unit":  quotaPerUnit,
-			"monthly_stats":   dashboards,
-			"monthly_request": monthlyRequestCount,
-			"monthly_token":   monthlyTokenCount,
+			"request_count":    user.RequestCount,
+			"token_count":      user.UsedQuota,
+			"used_quota":       user.UsedQuota,
+			"quota":            user.Quota,
+			"quota_per_unit":   quotaPerUnit,
+			"monthly_stats":    dashboards,
+			"monthly_request":  monthlyRequestCount,
+			"monthly_token":    monthlyTokenCount,
+			"total_users":      totalUsers,
+			"new_users_today":  newUsersToday,
 		},
 	})
 	return

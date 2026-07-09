@@ -32,37 +32,35 @@ window.addEventListener('error', errorHandler);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-    <React.StrictMode>
-        <StatusProvider>
-            <UserProvider>
-                <BrowserRouter>
-                    <div className="app-layout">
-                        {/* 侧边栏 */}
-                        <aside className="app-sidebar">
-                            <SiderBar/>
-                        </aside>
+    <StatusProvider>
+        <UserProvider>
+            <BrowserRouter>
+                <div className="app-layout">
+                    {/* 侧边栏 */}
+                    <aside className="app-sidebar">
+                        <SiderBar/>
+                    </aside>
 
-                        {/* 主内容区域 */}
-                        <div className="app-main">
-                            {/* 顶部栏 */}
-                            <header className="app-header">
-                                <HeaderBar/>
-                            </header>
+                    {/* 主内容区域 */}
+                    <div className="app-main">
+                        {/* 顶部栏 */}
+                        <header className="app-header">
+                            <HeaderBar/>
+                        </header>
 
-                            {/* 内容区域 */}
-                            <main className="app-content">
-                                <App/>
-                            </main>
+                        {/* 内容区域 */}
+                        <main className="app-content">
+                            <App/>
+                        </main>
 
-                            {/* 底部栏 */}
-                            <footer className="app-footer">
-                                <Footer/>
-                            </footer>
-                        </div>
+                        {/* 底部栏 */}
+                        <footer className="app-footer">
+                            <Footer/>
+                        </footer>
                     </div>
-                    <ToastContainer/>
-                </BrowserRouter>
-            </UserProvider>
-        </StatusProvider>
-    </React.StrictMode>
+                </div>
+                <ToastContainer/>
+            </BrowserRouter>
+        </UserProvider>
+    </StatusProvider>
 );

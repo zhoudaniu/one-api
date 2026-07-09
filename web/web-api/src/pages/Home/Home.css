@@ -111,6 +111,69 @@
   color: #64748B;
 }
 
+.stat-icon-info {
+  background: #EFF6FF;
+  color: #3B82F6;
+}
+
+.stat-icon-new {
+  background: #ECFDF5;
+  color: #10B981;
+}
+
+/* 合并后的统计卡片 */
+.stats-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-item:hover {
+  background: #F1F5F9;
+  transform: translateY(-1px);
+}
+
+.stat-item-content {
+  flex: 1;
+}
+
+.stat-value-new {
+  color: #10B981;
+  font-size: 16px;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 欢迎区域 */
 .welcome-section {
   margin-bottom: 32px;

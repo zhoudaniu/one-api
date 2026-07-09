@@ -7,6 +7,7 @@ import {
   showNotice,
   timestamp2string,
 } from '../../helpers';
+import { renderQuota } from '../../helpers/render';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 import {
@@ -141,8 +142,7 @@ const Home = () => {
                 欢迎使用 {status?.system_name || 'One API'}
               </h1>
               <p className='welcome-description'>
-                OpenAI 接口聚合与管理系统，支持多种渠道包括
-                Azure，适用于密钥的二次分发管理。
+                OpenAI 接口聚合与管理系统，适用于密钥的二次分发管理。
               </p>
             </div>
             <div className='welcome-decoration'>
@@ -163,10 +163,10 @@ const Home = () => {
           </p>
         </div>
         <div className='stats-section'>
-          <Row gutter={[20, 20]}>
-            <Col xs={24} sm={12} md={6}>
-              <div className='stat-card'>
-                <div className='stat-card-content'>
+          <div className='stats-card'>
+            <div className='stats-grid'>
+              <div className='stat-item'>
+                <div className='stat-item-content'>
                   <div className='stat-label'>总请求数</div>
                   <div className='stat-value'>
                     {dashboardData?.monthly_request || 0}
@@ -177,10 +177,8 @@ const Home = () => {
                   <IconHistogram />
                 </div>
               </div>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <div className='stat-card'>
-                <div className='stat-card-content'>
+              <div className='stat-item'>
+                <div className='stat-item-content'>
                   <div className='stat-label'>总 Token 数</div>
                   <div className='stat-value'>
                     {dashboardData?.monthly_token || 0}
@@ -191,17 +189,11 @@ const Home = () => {
                   <IconKey />
                 </div>
               </div>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <div className='stat-card'>
-                <div className='stat-card-content'>
+              <div className='stat-item'>
+                <div className='stat-item-content'>
                   <div className='stat-label'>总消耗</div>
                   <div className='stat-value'>
-                    $
-                    {formatQuota(
-                      dashboardData?.used_quota || 0,
-                      dashboardData?.quota_per_unit
-                    )}
+                    {renderQuota(dashboardData?.used_quota || 0)}
                   </div>
                   <div className='stat-period'>本月</div>
                 </div>
@@ -209,17 +201,11 @@ const Home = () => {
                   <IconCreditCard />
                 </div>
               </div>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <div className='stat-card'>
-                <div className='stat-card-content'>
+              <div className='stat-item'>
+                <div className='stat-item-content'>
                   <div className='stat-label'>账户余额</div>
                   <div className='stat-value stat-value-balance'>
-                    $
-                    {formatQuota(
-                      dashboardData?.quota || 0,
-                      dashboardData?.quota_per_unit
-                    )}
+                    {renderQuota(dashboardData?.quota || 0)}
                   </div>
                   <div className='stat-period'>可用</div>
                 </div>
@@ -227,8 +213,21 @@ const Home = () => {
                   <IconGift />
                 </div>
               </div>
-            </Col>
-          </Row>
+              <div className='stat-item'>
+                <div className='stat-item-content'>
+                  <div className='stat-label'>总用户数</div>
+                  <div className='stat-value'>
+                    {dashboardData?.total_users || 0}
+                    <span className='stat-value-new'>+{dashboardData?.new_users_today || 0}</span>
+                  </div>
+                  <div className='stat-period'>今日新增 {dashboardData?.new_users_today || 0}</div>
+                </div>
+                <div className='stat-icon-wrapper stat-icon-info'>
+                  <IconInfoCircle />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

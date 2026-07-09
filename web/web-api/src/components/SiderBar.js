@@ -3,7 +3,14 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { StatusContext } from '../context/Status';
 
-import { API, getLogo, getSystemName, isAdmin, isMobile, showError } from '../helpers';
+import {
+  API,
+  getLogo,
+  getSystemName,
+  isAdmin,
+  isMobile,
+  showError,
+} from '../helpers';
 import '../index.css';
 import './SiderBar.css';
 
@@ -19,7 +26,7 @@ import {
   IconLayers,
   IconSetting,
   IconUser,
-  IconChevronLeft
+  IconChevronLeft,
 } from '@douyinfe/semi-icons';
 import { Layout, Nav } from '@douyinfe/semi-ui';
 
@@ -28,7 +35,8 @@ import { Layout, Nav } from '@douyinfe/semi-ui';
 const SiderBar = () => {
   const [userState, userDispatch] = useContext(UserContext);
   const [statusState, statusDispatch] = useContext(StatusContext);
-  const defaultIsCollapsed = isMobile() || localStorage.getItem('default_collapse_sidebar') === 'true';
+  const defaultIsCollapsed =
+    isMobile() || localStorage.getItem('default_collapse_sidebar') === 'true';
 
   let navigate = useNavigate();
   const [selectedKeys, setSelectedKeys] = useState(['home']);
@@ -36,86 +44,102 @@ const SiderBar = () => {
   const logo = getLogo();
   const [isCollapsed, setIsCollapsed] = useState(defaultIsCollapsed);
 
-  const headerButtons = useMemo(() => [
-    {
-      text: '首页',
-      itemKey: 'home',
-      to: '/',
-      icon: <IconHome />
-    },
-    {
-      text: '渠道',
-      itemKey: 'channel',
-      to: '/channel',
-      icon: <IconLayers />,
-      className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '聊天',
-      itemKey: 'chat',
-      to: '/chat',
-      icon: <IconComment />,
-      className: localStorage.getItem('chat_link') ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '令牌',
-      itemKey: 'token',
-      to: '/token',
-      icon: <IconKey />
-    },
-    {
-      text: '兑换',
-      itemKey: 'redemption',
-      to: '/redemption',
-      icon: <IconGift />,
-      className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '充值',
-      itemKey: 'topup',
-      to: '/topup',
-      icon: <IconCreditCard />
-    },
-    {
-      text: '用户',
-      itemKey: 'user',
-      to: '/user',
-      icon: <IconUser />,
-      className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '日志',
-      itemKey: 'log',
-      to: '/log',
-      icon: <IconHistogram />
-    },
-    {
-      text: '数据看板',
-      itemKey: 'detail',
-      to: '/detail',
-      icon: <IconCalendarClock />,
-      className: localStorage.getItem('enable_data_export') === 'true' ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '绘图',
-      itemKey: 'midjourney',
-      to: '/midjourney',
-      icon: <IconImage />,
-      className: localStorage.getItem('enable_drawing') === 'true' ? 'semi-navigation-item-normal' : 'tableHiddle'
-    },
-    {
-      text: '设置',
-      itemKey: 'setting',
-      to: '/setting',
-      icon: <IconSetting />
-    }
-    // {
-    //     text: '关于',
-    //     itemKey: 'about',
-    //     to: '/about',
-    //     icon: <IconAt/>
-    // }
-  ], [localStorage.getItem('enable_data_export'), localStorage.getItem('enable_drawing'), localStorage.getItem('chat_link'), isAdmin()]);
+  const headerButtons = useMemo(
+    () => [
+      {
+        text: '首页',
+        itemKey: 'home',
+        to: '/',
+        icon: <IconHome />,
+      },
+      {
+        text: '渠道',
+        itemKey: 'channel',
+        to: '/channel',
+        icon: <IconLayers />,
+        className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle',
+      },
+      {
+        text: '聊天',
+        itemKey: 'chat',
+        to: '/chat',
+        icon: <IconComment />,
+        className: localStorage.getItem('chat_link')
+          ? 'semi-navigation-item-normal'
+          : 'tableHiddle',
+      },
+      {
+        text: '令牌',
+        itemKey: 'token',
+        to: '/token',
+        icon: <IconKey />,
+      },
+      {
+        text: '兑换',
+        itemKey: 'redemption',
+        to: '/redemption',
+        icon: <IconGift />,
+        className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle',
+      },
+      {
+        text: '充值',
+        itemKey: 'topup',
+        to: '/topup',
+        icon: <IconCreditCard />,
+      },
+      {
+        text: '用户',
+        itemKey: 'user',
+        to: '/user',
+        icon: <IconUser />,
+        className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle',
+      },
+      {
+        text: '日志',
+        itemKey: 'log',
+        to: '/log',
+        icon: <IconHistogram />,
+      },
+      {
+        text: '数据看板',
+        itemKey: 'detail',
+        to: '/detail',
+        icon: <IconCalendarClock />,
+        className:
+          localStorage.getItem('enable_data_export') === 'true'
+            ? 'semi-navigation-item-normal'
+            : 'tableHiddle',
+      },
+      {
+        text: '绘图',
+        itemKey: 'midjourney',
+        to: '/midjourney',
+        icon: <IconImage />,
+        className:
+          localStorage.getItem('enable_drawing') === 'true'
+            ? 'semi-navigation-item-normal'
+            : 'tableHiddle',
+      },
+      {
+        text: '设置',
+        itemKey: 'setting',
+        to: '/setting',
+        icon: <IconSetting />,
+      },
+      // {
+      //     text: '关于',
+      //     itemKey: 'about',
+      //     to: '/about',
+      //     icon: <IconAt/>
+      // }
+    ],
+    [
+      localStorage.getItem('enable_data_export'),
+      localStorage.getItem('enable_drawing'),
+      localStorage.getItem('chat_link'),
+      isAdmin(),
+    ]
+  );
 
   const loadStatus = async () => {
     try {
@@ -132,8 +156,14 @@ const SiderBar = () => {
           localStorage.setItem('display_in_currency', data.display_in_currency);
           localStorage.setItem('enable_drawing', data.enable_drawing);
           localStorage.setItem('enable_data_export', data.enable_data_export);
-          localStorage.setItem('data_export_default_time', data.data_export_default_time);
-          localStorage.setItem('default_collapse_sidebar', data.default_collapse_sidebar);
+          localStorage.setItem(
+            'data_export_default_time',
+            data.data_export_default_time
+          );
+          localStorage.setItem(
+            'default_collapse_sidebar',
+            data.default_collapse_sidebar
+          );
           localStorage.setItem('mj_notify_enabled', data.mj_notify_enabled);
           if (data.chat_link) {
             localStorage.setItem('chat_link', data.chat_link);
@@ -157,7 +187,10 @@ const SiderBar = () => {
 
   useEffect(() => {
     loadStatus().then(() => {
-      setIsCollapsed(isMobile() || localStorage.getItem('default_collapse_sidebar') === 'true');
+      setIsCollapsed(
+        isMobile() ||
+          localStorage.getItem('default_collapse_sidebar') === 'true'
+      );
     });
   }, []);
 
@@ -187,31 +220,35 @@ const SiderBar = () => {
   return (
     <div className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
       {/* Logo 区域 */}
-      <div className="sidebar-logo">
-        <img src={logo} alt="logo" />
-        {!isCollapsed && <span className="sidebar-logo-text">{systemName}</span>}
+      <div className='sidebar-logo'>
+        <img src={logo} alt='logo' />
+        {!isCollapsed && (
+          <span className='sidebar-logo-text'>{systemName}</span>
+        )}
       </div>
 
       {/* 导航菜单 */}
-      <nav className="sidebar-nav">
+      <nav className='sidebar-nav'>
         {headerButtons.map((item, index) => (
           <Link
             key={item.itemKey}
             to={item.to}
-            className={`nav-item ${selectedKeys[0] === item.itemKey ? 'active' : ''} ${item.className || ''}`}
+            className={`nav-item ${
+              selectedKeys[0] === item.itemKey ? 'active' : ''
+            } ${item.className || ''}`}
             style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <span className="nav-item-icon">{item.icon}</span>
-            <span className="nav-item-text">{item.text}</span>
+            <span className='nav-item-icon'>{item.icon}</span>
+            <span className='nav-item-text'>{item.text}</span>
             {isCollapsed && (
-              <span className="nav-item-tooltip">{item.text}</span>
+              <span className='nav-item-tooltip'>{item.text}</span>
             )}
           </Link>
         ))}
       </nav>
 
       {/* 底部折叠按钮 */}
-      <div className="sidebar-footer">
+      {/* <div className="sidebar-footer">
         <button
           className="sidebar-collapse-btn"
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -221,7 +258,7 @@ const SiderBar = () => {
           </span>
           {!isCollapsed && <span>收起侧边栏</span>}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -160,6 +160,9 @@ func migrateDB() error {
 	if err = DB.AutoMigrate(&Channel{}); err != nil {
 		return err
 	}
+	if err = DB.AutoMigrate(&TopUpOrder{}); err != nil {
+		return err
+	}
 	return nil
 }
 

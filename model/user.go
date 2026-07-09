@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -51,6 +52,7 @@ type User struct {
 	Group            string `json:"group" gorm:"type:varchar(32);default:'default'"`
 	AffCode          string `json:"aff_code" gorm:"type:varchar(32);column:aff_code;uniqueIndex"`
 	InviterId        int    `json:"inviter_id" gorm:"type:int;column:inviter_id;index"`
+	CreatedAt        int64  `json:"created_at" gorm:"autoCreateTime"`
 }
 
 func GetMaxUserId() int {
@@ -450,4 +452,16 @@ func updateUserRequestCount(id int, count int) {
 func GetUsernameById(id int) (username string) {
 	DB.Model(&User{}).Where("id = ?", id).Select("username").Find(&username)
 	return username
+}
+
+func GetUserCount() (count int64, err error) {
+	err = DB.Model(&User{}).Where("status != ?", UserStatusDeleted).Count(&count).Error
+	return
+}
+
+func GetTodayNewUserCount() (count int64, err error) {
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()).Unix()
+	err = DB.Model(&User{}).Where("status != ? AND created_at >= ?", UserStatusDeleted, startOfDay).Count(&count).Error
+	return
 }

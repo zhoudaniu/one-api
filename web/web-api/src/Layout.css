@@ -9,14 +9,8 @@
 
 /* 侧边栏区域 */
 .app-sidebar {
-  width: 260px;
   flex-shrink: 0;
   height: 100vh;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app-sidebar.collapsed {
-  width: 80px;
 }
 
 /* 主内容区域 */
@@ -26,6 +20,7 @@
   flex-direction: column;
   overflow: hidden;
   background: #F8FAFC;
+  min-width: 0;
 }
 
 /* 顶部栏 */
@@ -61,17 +56,6 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 1024px) {
-  .app-sidebar {
-    width: 80px;
-  }
-
-  .app-sidebar .sidebar-logo-text,
-  .app-sidebar .nav-item-text {
-    display: none;
-  }
-}
-
 @media (max-width: 768px) {
   .app-sidebar {
     position: fixed;
@@ -106,27 +90,4 @@
 
 .app-content::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
-}
-
-/* 页面过渡动画 */
-.page-transition-enter {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.page-transition-enter-active {
-  opacity: 1;
-  transform: translateY(0);
-  transition: all 0.3s ease;
-}
-
-.page-transition-exit {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.page-transition-exit-active {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.3s ease;
 }

@@ -11,6 +11,7 @@ import (
 
 func SetApiRouter(router *gin.Engine) {
 	apiRouter := router.Group("/api")
+	apiRouter.Use(middleware.CORS())
 	apiRouter.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiRouter.Use(middleware.GlobalAPIRateLimit())
 	{
@@ -48,6 +49,10 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)
 				selfRoute.GET("/available_models", controller.GetUserAvailableModels)
+
+				// 钱包充值
+				selfRoute.POST("/wallet/top-up/order", controller.CreateTopUpOrder)
+				selfRoute.GET("/wallet/top-up/order/:id", controller.GetTopUpOrderStatus)
 			}
 
 			adminRoute := userRoute.Group("/")
@@ -132,5 +137,8 @@ func SetApiRouter(router *gin.Engine) {
 			mjRoute.GET("/", middleware.AdminAuth(), controller.GetMidjourneyLogs)
 			mjRoute.GET("/self", middleware.UserAuth(), controller.GetMidjourneyLogsSelf)
 		}
+
+		// 钱包回调路由（无需认证，由外部钱包服务调用）
+		apiRouter.POST("/webhook/topup", controller.WebhookTopUpCallback)
 	}
 }

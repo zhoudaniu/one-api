@@ -1,313 +1,312 @@
-import React, {useEffect, useState} from 'react';
-import {API, isMobile, showError, showInfo, showSuccess} from '../../helpers';
-import {renderNumber, renderQuota} from '../../helpers/render';
-import {Col, Layout, Row, Typography, Card, Button, Form, Divider, Space, Modal} from "@douyinfe/semi-ui";
-import Title from "@douyinfe/semi-ui/lib/es/typography/title";
-import Text from '@douyinfe/semi-ui/lib/es/typography/text';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { API, showError, showSuccess } from '../../helpers';
+import { renderQuota } from '../../helpers/render';
+import {
+  Layout,
+  Card,
+  Button,
+  Input,
+  Typography,
+  Space,
+  Spin,
+  Modal,
+} from '@douyinfe/semi-ui';
+import { QRCodeSVG } from 'qrcode.react';
+import './TopUp.css';
+
+const { Title, Text } = Typography;
+
+const PRESET_AMOUNTS = [10, 20, 50, 100, 300, 500];
 
 const TopUp = () => {
-    const [redemptionCode, setRedemptionCode] = useState('');
-    const [topUpCode, setTopUpCode] = useState('');
-    const [topUpCount, setTopUpCount] = useState(10);
-    const [minTopupCount, setMinTopUpCount] = useState(1);
-    const [amount, setAmount] = useState(0.0);
-    const [minTopUp, setMinTopUp] = useState(1);
-    const [topUpLink, setTopUpLink] = useState('');
-    const [enableOnlineTopUp, setEnableOnlineTopUp] = useState(false);
-    const [userQuota, setUserQuota] = useState(0);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [payWay, setPayWay] = useState('');
+  const [userQuota, setUserQuota] = useState(0);
+  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [customAmount, setCustomAmount] = useState('');
+  const [isCustom, setIsCustom] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState(null);
+  const [countdown, setCountdown] = useState(0);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const timerRef = useRef(null);
 
-    const topUp = async () => {
-        if (redemptionCode === '') {
-            showInfo('请输入兑换码！')
-            return;
-        }
-        setIsSubmitting(true);
-        try {
-            const res = await API.post('/api/user/topup', {
-                key: redemptionCode
-            });
-            const {success, message, data} = res.data;
-            if (success) {
-                showSuccess('兑换成功！');
-                Modal.success({title: '兑换成功！', content: '成功兑换额度：' + renderQuota(data), centered: true});
-                // 重新获取最新余额
-                await getUserQuota();
-                setRedemptionCode('');
-            } else {
-                showError(message);
-            }
-        } catch (err) {
-            showError('请求失败');
-        } finally {
-            setIsSubmitting(false);
-        }
+  const getUserQuota = async () => {
+    try {
+      const res = await API.get('/api/user/self');
+      const { success, message, data } = res.data;
+      if (success) {
+        setUserQuota(data.quota);
+      } else {
+        showError(message);
+      }
+    } catch (err) {
+      showError('获取余额失败');
+    }
+  };
+
+  const formatCountdown = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
+  };
+
+  const startCountdown = useCallback((expiredTime) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    const updateCountdown = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = expiredTime - now;
+      if (remaining <= 0) {
+        setCountdown(0);
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+        return;
+      }
+      setCountdown(remaining);
     };
 
-    const openTopUpLink = () => {
-        if (!topUpLink) {
-            showError('超级管理员未设置充值链接！');
-            return;
-        }
-        window.open(topUpLink, '_blank');
+    updateCountdown();
+    timerRef.current = setInterval(updateCountdown, 1000);
+  }, []);
+
+  useEffect(() => {
+    getUserQuota();
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
+  }, []);
 
-    const preTopUp = async (payment) => {
-        if (!enableOnlineTopUp) {
-            showError('管理员未开启在线充值！');
-            return;
-        }
-        if (amount === 0) {
-            await getAmount();
-        }
-        if (topUpCount < minTopUp) {
-            showInfo('充值数量不能小于' + minTopUp);
-            return;
-        }
-        setPayWay(payment)
-        setOpen(true);
+  const handleSelectAmount = (amount) => {
+    setSelectedAmount(amount);
+    setIsCustom(false);
+    setCustomAmount('');
+  };
+
+  const handleCustomClick = () => {
+    setIsCustom(true);
+    setSelectedAmount(null);
+  };
+
+  const handleCustomAmountChange = (value) => {
+    const num = parseInt(value, 10);
+    if (!isNaN(num) && num >= 1 && num <= 100000) {
+      setCustomAmount(value);
+      setSelectedAmount(num);
+    } else if (value === '') {
+      setCustomAmount('');
+      setSelectedAmount(null);
+    }
+  };
+
+  const getAmount = () => {
+    if (isCustom) {
+      return parseInt(customAmount, 10) || 0;
+    }
+    return selectedAmount || 0;
+  };
+
+  const handleTopUp = async () => {
+    const amount = getAmount();
+    if (!amount || amount < 1) {
+      showError('请选择或输入充值金额');
+      return;
     }
 
-    const onlineTopUp = async () => {
-        if (amount === 0) {
-            await getAmount();
-        }
-        if (topUpCount < minTopUp) {
-            showInfo('充值数量不能小于' + minTopUp);
-            return;
-        }
-        setOpen(false);
-        try {
-            const res = await API.post('/api/user/pay', {
-                amount: parseInt(topUpCount),
-                top_up_code: topUpCode,
-                payment_method: payWay
-            });
-            if (res !== undefined) {
-                const {message, data} = res.data;
-                // showInfo(message);
-                if (message === 'success') {
-
-                    let params = data
-                    let url = res.data.url
-                    let form = document.createElement('form')
-                    form.action = url
-                    form.method = 'POST'
-                    // 判断是否为safari浏览器
-                    let isSafari = navigator.userAgent.indexOf("Safari") > -1 && navigator.userAgent.indexOf("Chrome") < 1;
-                    if (!isSafari) {
-                        form.target = '_blank'
-                    }
-                    for (let key in params) {
-                        let input = document.createElement('input')
-                        input.type = 'hidden'
-                        input.name = key
-                        input.value = params[key]
-                        form.appendChild(input)
-                    }
-                    document.body.appendChild(form)
-                    form.submit()
-                    document.body.removeChild(form)
-                } else {
-                    showError(data);
-                    // setTopUpCount(parseInt(res.data.count));
-                    // setAmount(parseInt(data));
-                }
-            } else {
-                showError(res);
-            }
-        } catch (err) {
-            console.log(err);
-        } finally {
-        }
+    setLoading(true);
+    try {
+      // 通过后端代理调用外部钱包API（本地开发和服务器部署通用）
+      const res = await API.post('/api/user/wallet/top-up/order', {
+        amount: amount,
+      });
+      const { success, message, data } = res.data;
+      if (success) {
+        setOrder(data);
+        // 计算过期时间
+        const expireTime = Math.floor(Date.now() / 1000) + data.expired_time;
+        startCountdown(expireTime);
+        showSuccess('订单创建成功，请扫码支付');
+      } else {
+        showError(message);
+      }
+    } catch (err) {
+      showError('创建订单失败，请稍后重试');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const getUserQuota = async () => {
-        let res = await API.get(`/api/user/self`);
-        const {success, message, data} = res.data;
-        if (success) {
-            setUserQuota(data.quota);
-        } else {
-            showError(message);
-        }
+  const handleCopyAddress = () => {
+    if (order?.address) {
+      navigator.clipboard
+        .writeText(order.address)
+        .then(() => {
+          showSuccess('地址已复制到剪贴板');
+        })
+        .catch(() => {
+          showError('复制失败，请手动复制');
+        });
     }
+  };
 
-    useEffect(() => {
-        let status = localStorage.getItem('status');
-        if (status) {
-            status = JSON.parse(status);
-            if (status.top_up_link) {
-                setTopUpLink(status.top_up_link);
-            }
-            if (status.min_topup) {
-                setMinTopUp(status.min_topup);
-            }
-            if (status.enable_online_topup) {
-                setEnableOnlineTopUp(status.enable_online_topup);
-            }
-        }
-        getUserQuota().then();
-    }, []);
-
-    const renderAmount = () => {
-        // console.log(amount);
-        return amount + '元';
+  const handleCloseOrder = () => {
+    setOrder(null);
+    setCountdown(0);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+  };
 
-    const getAmount = async (value) => {
-        if (value === undefined) {
-            value = topUpCount;
-        }
-        try {
-            const res = await API.post('/api/user/amount', {
-                amount: parseFloat(value),
-                top_up_code: topUpCode
-            });
-            if (res !== undefined) {
-                const {message, data} = res.data;
-                // showInfo(message);
-                if (message === 'success') {
-                    setAmount(parseFloat(data));
-                } else {
-                    showError(data);
-                    // setTopUpCount(parseInt(res.data.count));
-                    // setAmount(parseInt(data));
-                }
-            } else {
-                showError(res);
-            }
-        } catch (err) {
-            console.log(err);
-        } finally {
-        }
-    }
+  const renderAmountSection = () => {
+    if (order) {
+      return (
+        <div className='order-section'>
+          <div className='order-header'>
+            <Title level={4}>请扫码支付</Title>
+            <Text type='danger' className='countdown'>
+              剩余时间: {formatCountdown(countdown)}
+            </Text>
+          </div>
 
-    const handleCancel = () => {
-        setOpen(false);
+          <div className='qr-section'>
+            <div className='qr-wrapper'>
+              <QRCodeSVG
+                value={order.address}
+                size={200}
+                level='H'
+                includeMargin={true}
+              />
+            </div>
+          </div>
+
+          <div className='order-info'>
+            <div className='info-row'>
+              <Text type='secondary'>充值金额:</Text>
+              <Text strong className='amount-highlight'>
+                {order.amount} USDT
+              </Text>
+            </div>
+            <div className='amount-warning'>
+              ⚠️ 请务必转入精确金额 {order.amount} USDT，否则可能无法自动到账
+            </div>
+            <div className='info-row'>
+              <Text type='secondary'>收款地址:</Text>
+              <div className='address-box'>
+                <Text
+                  copyable={{ content: order.address }}
+                  className='address-text'
+                >
+                  {order.address}
+                </Text>
+              </div>
+            </div>
+          </div>
+
+          <div className='order-actions'>
+            <Button type='secondary' onClick={handleCloseOrder}>
+              取消订单
+            </Button>
+            <Button type='primary' onClick={handleCopyAddress}>
+              复制地址
+            </Button>
+          </div>
+
+          <div className='order-tips'>
+            <Text type='secondary' size='small'>
+              请在 {formatCountdown(countdown)} 内完成支付，超时订单将自动关闭
+            </Text>
+          </div>
+        </div>
+      );
     }
 
     return (
-        <div>
-            <Layout>
-                <Layout.Header>
-                    <h3>充值额度</h3>
-                </Layout.Header>
-                <Layout.Content>
-                    <Modal
-                        title="确定要充值吗"
-                        visible={open}
-                        onOk={onlineTopUp}
-                        onCancel={handleCancel}
-                        maskClosable={false}
-                        size={'small'}
-                        centered={true}
-                    >
-                        <p>充值数量：{topUpCount}$</p>
-                        <p>实付金额：{renderAmount()}</p>
-                        <p>是否确认充值？</p>
-                    </Modal>
-                    <div style={{marginTop: 20, display: 'flex', justifyContent: 'center'}}>
-                        <Card
-                            style={{width: '500px', padding: '20px'}}
-                        >
-                            <Title level={3} style={{textAlign: 'center'}}>余额 {renderQuota(userQuota)}</Title>
-                            <div style={{marginTop: 20}}>
-                                <Divider>
-                                    兑换余额
-                                </Divider>
-                                <Form>
-                                    <Form.Input
-                                        field={'redemptionCode'}
-                                        label={'兑换码'}
-                                        placeholder='兑换码'
-                                        name='redemptionCode'
-                                        value={redemptionCode}
-                                        onChange={(value) => {
-                                            setRedemptionCode(value);
-                                        }}
-                                    />
-                                    <Space>
-                                        {
-                                            topUpLink ?
-                                                <Button type={'primary'} theme={'solid'} onClick={openTopUpLink}>
-                                                    获取兑换码
-                                                </Button> : null
-                                        }
-                                        <Button type={"warning"} theme={'solid'} onClick={topUp}
-                                                disabled={isSubmitting}>
-                                            {isSubmitting ? '兑换中...' : '兑换'}
-                                        </Button>
-                                    </Space>
-                                </Form>
-                            </div>
-                            {/* <div style={{marginTop: 20}}>
-                                <Divider>
-                                    在线充值
-                                </Divider>
-                                <Form>
-                                    <Form.Input
-                                        disabled={!enableOnlineTopUp}
-                                        field={'redemptionCount'}
-                                        label={'实付金额：' + renderAmount()}
-                                        placeholder={'充值数量，最低' + minTopUp + '$'}
-                                        name='redemptionCount'
-                                        type={'number'}
-                                        value={topUpCount}
-                                        suffix={'$'}
-                                        min={minTopUp}
-                                        defaultValue={minTopUp}
-                                        max={100000}
-                                        onChange={async (value) => {
-                                            if (value < 1) {
-                                                value = 1;
-                                            }
-                                            if (value > 100000) {
-                                                value = 100000;
-                                            }
-                                            setTopUpCount(value);
-                                            await getAmount(value);
-                                        }}
-                                    />
-                                    <Space>
-                                        <Button type={'primary'} theme={'solid'} onClick={
-                                            async () => {
-                                                preTopUp('zfb')
-                                            }
-                                        }>
-                                            支付宝
-                                        </Button>
-                                        <Button style={{backgroundColor: 'rgba(var(--semi-green-5), 1)'}}
-                                                type={'primary'}
-                                                theme={'solid'} onClick={
-                                            async () => {
-                                                preTopUp('wx')
-                                            }
-                                        }>
-                                            微信
-                                        </Button>
-                                    </Space>
-                                </Form>
-                            </div> */}
-                            {/*<div style={{ display: 'flex', justifyContent: 'right' }}>*/}
-                            {/*    <Text>*/}
-                            {/*        <Link onClick={*/}
-                            {/*            async () => {*/}
-                            {/*                window.location.href = '/topup/history'*/}
-                            {/*            }*/}
-                            {/*        }>充值记录</Link>*/}
-                            {/*    </Text>*/}
-                            {/*</div>*/}
-                        </Card>
-                    </div>
-
-                </Layout.Content>
-            </Layout>
+      <div className='amount-section'>
+        <div className='amount-label'>支付金额</div>
+        <div className='amount-grid'>
+          {PRESET_AMOUNTS.map((amount) => (
+            <div
+              key={amount}
+              className={`amount-item ${
+                selectedAmount === amount && !isCustom ? 'active' : ''
+              }`}
+              onClick={() => handleSelectAmount(amount)}
+            >
+              ¥{amount}
+            </div>
+          ))}
+          <div
+            className={`amount-item custom ${isCustom ? 'active' : ''}`}
+            onClick={handleCustomClick}
+          >
+            自定义
+          </div>
         </div>
 
+        {isCustom && (
+          <div className='custom-input'>
+            <input
+              className='amount-input'
+              placeholder='请输入 1 至 100000 元之间的金额'
+              value={customAmount}
+              onChange={(e) => handleCustomAmountChange(e.target.value)}
+              type='text'
+              inputMode='numeric'
+              pattern='[0-9]*'
+              onKeyPress={(e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+            />
+          </div>
+        )}
+
+        <Button
+          type='primary'
+          theme='solid'
+          block
+          size='large'
+          loading={loading}
+          disabled={!selectedAmount}
+          onClick={handleTopUp}
+          className='topup-button'
+        >
+          立即充值
+        </Button>
+      </div>
     );
+  };
+
+  return (
+    <div className='topup-container'>
+      <Layout>
+        <Layout.Header>
+          <h3>充值</h3>
+        </Layout.Header>
+        <Layout.Content>
+          <div className='topup-content'>
+            <Card className='topup-card'>
+              <div className='balance-section'>
+                <Text type='secondary'>当前余额</Text>
+                <Title level={2} className='balance-value'>
+                  {renderQuota(userQuota)}
+                  <div className='balance-style'></div>
+                </Title>
+              </div>
+
+              {renderAmountSection()}
+            </Card>
+          </div>
+        </Layout.Content>
+      </Layout>
+    </div>
+  );
 };
 
 export default TopUp;
