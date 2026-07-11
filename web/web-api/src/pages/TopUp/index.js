@@ -119,35 +119,29 @@ const TopUp = () => {
 
     setLoading(true);
     try {
-      const walletApiUrl = process.env.REACT_APP_WALLET_API_URL;
+      // 直接调用外部钱包API，携带Cookie
+      const walletRes = await fetch('http://api.smartlinking.ai/one-api/wallet/top-up/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': document.cookie,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ amount: amount })
+      });
+      const walletData = await walletRes.json();
+
       let orderData;
-      if (walletApiUrl) {
-        // 生产环境：直接调用外部钱包API
-        const res = await API.post(walletApiUrl, { amount });
-        const resp = res.data;
-        if (resp.code === 200 && resp.data) {
-          orderData = {
-            order_id: null,
-            amount: resp.data.amount,
-            address: resp.data.address,
-            expired_time: resp.data.expired_time,
-          };
-        } else {
-          showError(resp.message || '创建订单失败');
-          return;
-        }
+      if (walletData.code === 200 && walletData.data) {
+        orderData = {
+          order_id: null,
+          amount: walletData.data.amount,
+          address: walletData.data.address,
+          expired_time: walletData.data.expired_time,
+        };
       } else {
-        // 开发环境：通过后端代理调用外部钱包API
-        const res = await API.post('/api/user/wallet/top-up/order', {
-          amount: amount,
-        });
-        const { success, message, data } = res.data;
-        if (success) {
-          orderData = data;
-        } else {
-          showError(message);
-          return;
-        }
+        showError(walletData.message || '创建订单失败');
+        return;
       }
       setOrder(orderData);
       const expireTime = Math.floor(Date.now() / 1000) + orderData.expired_time;
