@@ -119,28 +119,22 @@ const TopUp = () => {
 
     setLoading(true);
     try {
-      // 直接调用外部钱包API，携带Cookie
-      const walletRes = await fetch('http://api.smartlinking.ai/one-api/wallet/top-up/order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': document.cookie,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ amount: amount })
+      // 通过后端代理调用外部钱包API
+      const res = await API.post('/api/user/wallet/top-up/order', {
+        amount: amount,
       });
-      const walletData = await walletRes.json();
+      const { success, message, data } = res.data;
 
       let orderData;
-      if (walletData.code === 200 && walletData.data) {
+      if (success) {
         orderData = {
-          order_id: null,
-          amount: walletData.data.amount,
-          address: walletData.data.address,
-          expired_time: walletData.data.expired_time,
+          order_id: data.order_id,
+          amount: data.amount,
+          address: data.address,
+          expired_time: data.expired_time,
         };
       } else {
-        showError(walletData.message || '创建订单失败');
+        showError(message || '创建订单失败');
         return;
       }
       setOrder(orderData);
