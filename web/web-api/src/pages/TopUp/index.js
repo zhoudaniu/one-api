@@ -119,20 +119,40 @@ const TopUp = () => {
 
     setLoading(true);
     try {
-      // 通过后端代理调用外部钱包API（本地开发和服务器部署通用）
-      const res = await API.post('/api/user/wallet/top-up/order', {
-        amount: amount,
-      });
-      const { success, message, data } = res.data;
-      if (success) {
-        setOrder(data);
-        // 计算过期时间
-        const expireTime = Math.floor(Date.now() / 1000) + data.expired_time;
-        startCountdown(expireTime);
-        showSuccess('订单创建成功，请扫码支付');
+      const walletApiUrl = process.env.REACT_APP_WALLET_API_URL;
+      let orderData;
+      if (walletApiUrl) {
+        // 生产环境：直接调用外部钱包API
+        const res = await API.post(walletApiUrl, { amount });
+        const resp = res.data;
+        if (resp.code === 200 && resp.data) {
+          orderData = {
+            order_id: null,
+            amount: resp.data.amount,
+            address: resp.data.address,
+            expired_time: resp.data.expired_time,
+          };
+        } else {
+          showError(resp.message || '创建订单失败');
+          return;
+        }
       } else {
-        showError(message);
+        // 开发环境：通过后端代理调用外部钱包API
+        const res = await API.post('/api/user/wallet/top-up/order', {
+          amount: amount,
+        });
+        const { success, message, data } = res.data;
+        if (success) {
+          orderData = data;
+        } else {
+          showError(message);
+          return;
+        }
       }
+      setOrder(orderData);
+      const expireTime = Math.floor(Date.now() / 1000) + orderData.expired_time;
+      startCountdown(expireTime);
+      showSuccess('订单创建成功，请扫码支付');
     } catch (err) {
       showError('创建订单失败，请稍后重试');
     } finally {

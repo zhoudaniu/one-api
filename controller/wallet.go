@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -75,8 +76,16 @@ func CreateTopUpOrder(c *gin.Context) {
 		httpReq.Header.Set("Cookie", "session="+cookie)
 	}
 
-	// 设置超时
-	client := &http.Client{Timeout: 30 * time.Second}
+	// 设置超时，跟随重定向，跳过SSL验证
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return nil
+		},
+	}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		logger.Error(c, "调用钱包API失败: "+err.Error())
@@ -116,26 +125,6 @@ func CreateTopUpOrder(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": "解析响应失败",
-		})
-		return
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error(c, "读取响应失败: "+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "创建订单失败",
-		})
-		return
-	}
-
-	var walletResp CreateOrderResponse
-	if err := json.Unmarshal(body, &walletResp); err != nil {
-		logger.Error(c, "解析响应失败: "+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "创建订单失败",
 		})
 		return
 	}
